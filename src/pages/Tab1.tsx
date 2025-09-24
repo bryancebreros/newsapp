@@ -1,31 +1,26 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonButton } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Tab1.css';
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from '../firebaseConfig'; 
+import { useEffect, useState } from "react";
 
 const Tab1: React.FC = () => {
-  const noticias = [
-    {
-      id: 1,
-      title: 'Primer Noticia',
-      subtitle: 'Subtítulo 1',
-      date: '2025-09-23',
-      content: 'Este es el contenido de la primera noticia.',
-    },
-    {
-      id: 2,
-      title: 'Segunda Noticia',
-      subtitle: 'Subtítulo 2',
-      date: '2025-09-23',
-      content: 'Este es el contenido de la segunda noticia.',
-    },
-    {
-      id: 3,
-      title: 'Tercera Noticia',
-      subtitle: 'Subtítulo 3',
-      date: '2025-09-23',
-      content: 'Este es el contenido de la tercera noticia.',
-    },
-  ];
+  
+  const [noticias, setNoticias] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "noticias"), (snapshot) => {
+      const docs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setNoticias(docs);
+    });
+
+    // 🔹 cancelar suscripción al desmontar
+    return () => unsubscribe();
+  }, []);
   return (
     <IonPage>
       <IonHeader>
@@ -42,12 +37,16 @@ const Tab1: React.FC = () => {
         <ExploreContainer name="Noticias" />
         {noticias.map((noticia) => (
           <IonCard key={noticia.id}>
-            <img alt="pokemon ivysaur" src="" height={300}/>
+            <img alt="pokemon ivysaur" src="https://img.pokemondb.net/artwork/large/ivysaur.jpg" height={300}/>
             <IonCardHeader>
               <IonCardTitle>{noticia.title}</IonCardTitle>
-              <IonCardSubtitle>{noticia.subtitle}</IonCardSubtitle>
+              <IonCardSubtitle>{noticia.subtitle || "Sin subtítulo"}</IonCardSubtitle>
             </IonCardHeader>
-            <IonCardContent>{noticia.content}</IonCardContent>
+            <IonCardContent>{noticia.content}<p style={{ fontSize: '0.9rem', color: 'gray' }}>
+                {new Date(noticia.fecha).toLocaleDateString()}
+            </p>
+            </IonCardContent>
+             
             <IonButton fill="clear">Delete</IonButton>
           </IonCard>
         ))}
