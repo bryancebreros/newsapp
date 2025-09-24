@@ -46,7 +46,6 @@ const Tab1: React.FC = () => {
                 {new Date(noticia.fecha).toLocaleDateString()}
             </p>
             </IonCardContent>
-             
             <IonButton fill="clear">Delete</IonButton>
           </IonCard>
         ))}
